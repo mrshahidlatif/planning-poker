@@ -1,14 +1,14 @@
 services:
-  - type: web
-    name: planning-poker-web
-    buildCommand: "docker build -t web ."
-    startCommand: "docker run web"
+  - name: planning-poker-web
+    type: web
+    env: docker
+    dockerContext: ./web
     dockerfilePath: ./web/Dockerfile
-    plan: starter
+    plan: free
 
-  - type: web
-    name: planning-poker-server
-    buildCommand: "docker build -t server ."
-    startCommand: "docker run server"
+  - name: planning-poker-server
+    type: web
+    env: docker
+    dockerContext: ./server
     dockerfilePath: ./server/Dockerfile
-    plan: starter
+    plan: free
