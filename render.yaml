@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: planning-poker-web
+    buildCommand: "docker build -t web ."
+    startCommand: "docker run web"
+    dockerfilePath: ./web/Dockerfile
+    plan: starter
+
+  - type: web
+    name: planning-poker-server
+    buildCommand: "docker build -t server ."
+    startCommand: "docker run server"
+    dockerfilePath: ./server/Dockerfile
+    plan: starter
