@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
-const URL = "https://planning-poker-server-b7iw.onrender.com";
+// const URL = "https://planning-poker-server-b7iw.onrender.com";
+const URL = "http://localhost:3001";
 
 let socket: Socket;
 
