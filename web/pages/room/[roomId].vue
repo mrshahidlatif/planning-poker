@@ -64,13 +64,13 @@
       <!-- Admin Controls -->
       <div v-if="isAdmin" class="flex justify-center gap-4">
         <button
-          class="px-5 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition"
+          class="px-5 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition"
           @click="reveal"
         >
           Reveal
         </button>
         <button
-          class="px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition"
+          class="px-5 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-700 transition"
           @click="reset"
         >
           Reset
