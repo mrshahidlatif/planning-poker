@@ -14,9 +14,9 @@
         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
-        @click="submitName"
         :disabled="!userName.trim()"
         class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+        @click="savedName"
       >
         Join Room
       </button>
@@ -44,9 +44,8 @@
         </h3>
         <div class="flex flex-wrap justify-center gap-3">
           <button
-            v-for="number in fibonacciNumbers"
+            v-for="number in fibNumbers"
             :key="number"
-            @click="selectVote(number)"
             :disabled="votesRevealed"
             :class="[
               'px-5 py-3 rounded-full text-lg font-semibold transition',
@@ -55,6 +54,7 @@
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300',
               votesRevealed ? 'opacity-50 cursor-not-allowed' : '',
             ]"
+            @click="vote(number)"
           >
             {{ number }}
           </button>
@@ -64,30 +64,59 @@
       <!-- Admin Controls -->
       <div v-if="isAdmin" class="flex justify-center gap-4">
         <button
-          @click="revealVotes"
           class="px-5 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition"
+          @click="reveal"
         >
           Reveal
         </button>
         <button
-          @click="resetVotes"
           class="px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition"
+          @click="reset"
         >
           Reset
         </button>
       </div>
 
-      <div v-if="votesRevealed" class="text-center font-normal">
-        <p class="tracking-widest text-xl">Votes revealed</p>
+      <div v-if="votesRevealed && voteStats" class="text-center font-normal">
+        <p class="tracking-widest text-xl mb-6">Votes revealed</p>
 
         <div
-          v-if="
-            (len(participants) > 2 && mostFrequentVote.times > 1) ||
-            mostFrequentVote.times === len(participants)
-          "
+          class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end justify-center"
         >
-          <p class="text-9xl font-extrabold">{{ mostFrequentVote.value }}</p>
-          {{ `${mostFrequentVote.times} out of ${len(participants)}` }} votes
+          <!-- Min vote -->
+          <div v-if="voteStats.min" class="space-y-2">
+            <p class="text-9xl font-extrabold">{{ voteStats.min.value }}</p>
+            <p class="text-gray-700 text-sm">
+              {{ voteStats.min.count }} vote{{
+                voteStats.min.count > 1 ? "s" : ""
+              }}
+            </p>
+            <p class="text-sm text-gray-500">Min</p>
+          </div>
+
+          <!-- Most frequent vote -->
+          <div class="space-y-2">
+            <p class="text-9xl font-extrabold">
+              {{ voteStats.mostFrequent.value }}
+            </p>
+            <p class="text-gray-700 text-sm">
+              {{ voteStats.mostFrequent.times }} vote{{
+                voteStats.mostFrequent.times > 1 ? "s" : ""
+              }}
+            </p>
+            <p class="text-sm text-gray-500">Most Frequent</p>
+          </div>
+
+          <!-- Max vote -->
+          <div v-if="voteStats.max" class="space-y-2">
+            <p class="text-9xl font-extrabold">{{ voteStats.max.value }}</p>
+            <p class="text-gray-700 text-sm">
+              {{ voteStats.max.count }} vote{{
+                voteStats.max.count > 1 ? "s" : ""
+              }}
+            </p>
+            <p class="text-sm text-gray-500">Max</p>
+          </div>
         </div>
       </div>
 
@@ -95,7 +124,7 @@
         <h4 class="text-lg font-semibold mb-2 text-gray-800">Participants</h4>
         <ul class="space-y-2">
           <li
-            v-for="(user, socketId) in participants"
+            v-for="(user, socketId) in users"
             :key="socketId"
             class="flex justify-between items-center px-4 py-2 bg-white rounded-md shadow-sm"
           >
@@ -118,54 +147,29 @@
 </template>
 
 <script setup lang="ts">
-import { useSocket } from "~/composables/useSocket";
+import { useWebSocket } from "~/composables/useWebSocket";
+
+type User = { name: string; vote: number | "?" | null };
+type Vote = number | "?" | null;
 
 const route = useRoute();
-const roomId = computed(() => route.params.roomId as string);
 
 const userName = ref("");
+const socketId = ref("");
 const nameSubmitted = ref(false);
-const selectedVote = ref<number | "?" | null>(null);
+const selectedVote = ref<Vote>(null);
 const votesRevealed = ref(false);
 const isAdmin = ref(false);
-const participants = ref<
-  Record<string, { name: string; vote: number | "?" | null }>
->({});
 
-const fibonacciNumbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
+const users = ref<Record<string, User>>({});
 
-const socket = useSocket();
+const fibNumbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
 
-const socketId = ref("");
+const socket = useWebSocket();
 
-onMounted(() => {
-  socket.on("connect", () => {
-    socketId.value = socket.id;
-  });
+const roomId = computed(() => route.params.roomId);
 
-  const savedName = sessionStorage.getItem(`name:${roomId.value}`);
-  if (savedName) {
-    userName.value = savedName;
-    nameSubmitted.value = true;
-    socket.emit("join-room", { roomId: roomId.value, name: savedName });
-  }
-
-  socket.on("room-state", (data) => {
-    participants.value = data.users;
-    isAdmin.value = data.adminId === socket.id;
-  });
-
-  socket.on("reveal-votes", () => {
-    votesRevealed.value = true;
-  });
-
-  socket.on("reset-votes", () => {
-    selectedVote.value = null;
-    votesRevealed.value = false;
-  });
-});
-
-const submitName = (): void => {
+const savedName = (): void => {
   if (!userName.value.trim()) return;
 
   sessionStorage.setItem(`name:${roomId.value}`, userName.value);
@@ -178,24 +182,24 @@ const submitName = (): void => {
   });
 };
 
-const selectVote = (vote: number | "?"): void => {
+const vote = (vote: number | "?"): void => {
   if (votesRevealed.value) return;
   selectedVote.value = vote;
   socket.emit("vote", { roomId: roomId.value, vote });
 };
 
-const revealVotes = (): void => {
+const reveal = (): void => {
   socket.emit("reveal", roomId.value);
 };
 
-const resetVotes = (): void => {
+const reset = (): void => {
   socket.emit("reset", roomId.value);
 };
 
 const voteSummary = computed(() => {
   const countMap: Record<string, number> = {};
 
-  for (const user of Object.values(participants.value)) {
+  for (const user of Object.values(users.value)) {
     const vote = user.vote ?? "No vote";
     countMap[vote] = (countMap[vote] || 0) + 1;
   }
@@ -206,23 +210,68 @@ const voteSummary = computed(() => {
   }));
 });
 
-const mostFrequentVote = computed(() => {
+const voteStats = computed(() => {
   if (!votesRevealed.value) return null;
 
+  const votes = voteSummary.value.filter((v) => v.value !== "No vote");
+
+  if (!votes.length) return null;
+
+  // Sort numerically, treating "?" as special
+  const numericVotes = votes.filter((v) => v.value !== "?");
+  const questionVote = votes.find((v) => v.value === "?");
+
+  numericVotes.sort((a, b) => Number(a.value) - Number(b.value));
+
+  const minVote = numericVotes[0];
+  const maxVote = numericVotes[numericVotes.length - 1];
+
+  // Compute most frequent vote
   let times = 0;
   let vote: string | null = null;
 
-  for (const { value, count } of voteSummary.value) {
-    if (count > times && value !== "No vote") {
+  for (const { value, count } of votes) {
+    if (count > times) {
       times = count;
       vote = value;
     }
   }
 
-  return { value: vote, times: times };
+  const mostFrequent = { value: vote, times };
+
+  return {
+    min: minVote,
+    max: maxVote,
+    mostFrequent,
+    questionVote,
+  };
 });
 
-const len = (obj: Object) => {
-  return Object.keys(obj).length;
-};
+onMounted(() => {
+  socket.on("connect", () => {
+    socketId.value = socket.id;
+  });
+
+  const savedName = sessionStorage.getItem(`name:${roomId.value}`);
+
+  if (savedName) {
+    userName.value = savedName;
+    nameSubmitted.value = true;
+    socket.emit("join-room", { roomId: roomId.value, name: savedName });
+  }
+
+  socket.on("room-state", (data) => {
+    users.value = data.users;
+    isAdmin.value = data.adminId === socket.id;
+  });
+
+  socket.on("reveal", () => {
+    votesRevealed.value = true;
+  });
+
+  socket.on("reset", () => {
+    selectedVote.value = null;
+    votesRevealed.value = false;
+  });
+});
 </script>

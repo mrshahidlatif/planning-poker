@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
 
   socket.on("reveal", (roomId) => {
     if (rooms[roomId]?.adminId === socket.id) {
-      io.to(roomId).emit("reveal-votes");
+      io.to(roomId).emit("reveal");
     }
   });
 
@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
         users: rooms[roomId].users,
         adminId: rooms[roomId].adminId,
       });
-      io.to(roomId).emit("reset-votes");
+      io.to(roomId).emit("reset");
     }
   });
 
