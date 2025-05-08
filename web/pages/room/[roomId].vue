@@ -77,7 +77,10 @@
         </button>
       </div>
 
-      <div v-if="votesRevealed && voteStats" class="text-center font-normal">
+      <div
+        v-if="votesRevealed && voteStats"
+        class="text-center font-normal text-neutral-500"
+      >
         <p class="tracking-widest text-xl mb-6">Votes revealed</p>
 
         <div
