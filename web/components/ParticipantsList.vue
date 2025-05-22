@@ -1,31 +1,52 @@
 <template>
   <div>
-    <h4 class="text-lg font-semibold mb-2 text-gray-800">Participants</h4>
-    <ul class="space-y-2">
-      <li
+    <h4 class="text-lg font-semibold mb-4 text-gray-800">Participants</h4>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
+      <div
         v-for="(user, socketId) in users"
         :key="socketId"
-        class="flex justify-between items-center px-4 py-2 bg-white rounded-md shadow-sm"
+        class="bg-white rounded-lg shadow-sm p-3 flex flex-col justify-between h-20"
       >
-        <span class="text-gray-700 font-medium">{{ user.name }}</span>
-        <span class="text-sm">
-          <span v-if="votesRevealed">
-            <strong>{{ user.vote ?? "No vote" }}</strong>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium truncate">{{
+            user.name
+          }}</span>
+          <span
+            v-if="isAdmin && user.name === currentUserName"
+            class="text-xs text-green-600 font-medium"
+            >Admin</span
+          >
+        </div>
+        <div class="mt-1">
+          <span v-if="votesRevealed" class="text-xl font-bold text-blue-600">
+            {{ user.vote ?? "😢" }}
           </span>
-          <span v-else>
-            <em class="text-gray-500">{{ user.vote ? "Voted" : "Waiting" }}</em>
+          <span
+            v-else-if="user.vote"
+            class="text-sm text-green-600 font-medium"
+          >
+            Voted
           </span>
-        </span>
-      </li>
-    </ul>
+          <div v-else class="flex items-center">
+            <Spinner size="sm" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Spinner from "./Spinner.vue";
+
 type User = { name: string; vote: number | "?" | null };
 
 defineProps<{
   users: Record<string, User>;
   votesRevealed: boolean;
+  isAdmin?: boolean;
+  currentUserName: string;
 }>();
 </script>

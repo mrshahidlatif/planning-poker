@@ -19,7 +19,12 @@
 
       <VoteResults v-if="votesRevealed && voteStats" :stats="voteStats" />
 
-      <ParticipantsList :users="users" :votes-revealed="votesRevealed" />
+      <ParticipantsList
+        :users="users"
+        :votes-revealed="votesRevealed"
+        :is-admin="isAdmin"
+        :current-user-name="userName"
+      />
     </div>
   </div>
 </template>
@@ -102,6 +107,7 @@ const reveal = (): void => {
 };
 
 const reset = (): void => {
+  selectedVote.value = null;
   socket.emit("reset", {
     roomId: roomId.value,
     name: userName.value,

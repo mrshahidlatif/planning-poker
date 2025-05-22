@@ -1,13 +1,15 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100">
     <header
-      class="w-full bg-blue-100 shadow px-6 py-4 flex items-center justify-between"
+      class="w-full bg-blue-100 shadow px-8 py-4 flex items-center justify-between"
     >
-      <div class="flex items-center space-x-2">
-        <NuxtLink to="/" class="text-xl text-blue-600 tracking-widest">
-          🎲 Work Estimation Poker
-        </NuxtLink>
-      </div>
+      <NuxtLink to="/" class="text-xl text-blue-600 tracking-widest">
+        🎲 Work Estimation Poker
+      </NuxtLink>
+      <span v-if="route.params.roomId" class="text-gray-600">
+        Planning Room:
+        <span class="font-mono text-blue-600">{{ route.params.roomId }}</span>
+      </span>
     </header>
 
     <main class="flex-1 bg-blue-50">
@@ -15,3 +17,7 @@
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+</script>
