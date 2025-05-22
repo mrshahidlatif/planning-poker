@@ -4,77 +4,112 @@ const io = new Server(3001, {
   cors: { origin: "*" },
 });
 
+// In-memory storage (temporary solution)
 const rooms = {};
 
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("join-room", ({ roomId, name }) => {
+  socket.on("join-room", ({ roomId, name, adminToken }) => {
     socket.join(roomId);
 
+    // Create room if it doesn't exist
     if (!rooms[roomId]) {
       rooms[roomId] = {
-        adminId: socket.id,
+        adminToken, // Store the admin token
         users: {},
+        votesRevealed: false
       };
     }
 
-    rooms[roomId].users[socket.id] = { name, vote: null };
+    // Add or update user in room
+    rooms[roomId].users[name] = {
+      name,
+      vote: null,
+      socketId: socket.id
+    };
 
+    // Send current room state to all users in the room
     io.to(roomId).emit("room-state", {
       users: rooms[roomId].users,
-      adminId: rooms[roomId].adminId,
+      adminToken: rooms[roomId].adminToken,
+      votesRevealed: rooms[roomId].votesRevealed
     });
   });
 
-  socket.on("vote", ({ roomId, vote }) => {
-    if (rooms[roomId]?.users[socket.id]) {
-      rooms[roomId].users[socket.id].vote = vote;
+  socket.on("vote", ({ roomId, name, vote }) => {
+    const room = rooms[roomId];
+    if (room?.users[name]) {
+      room.users[name].vote = vote;
+      room.users[name].socketId = socket.id; // Update socket mapping
       io.to(roomId).emit("room-state", {
-        users: rooms[roomId].users,
-        adminId: rooms[roomId].adminId,
+        users: room.users,
+        adminToken: room.adminToken,
+        votesRevealed: room.votesRevealed
       });
     }
   });
 
-  socket.on("reveal", (roomId) => {
-    if (rooms[roomId]?.adminId === socket.id) {
-      io.to(roomId).emit("reveal");
+  socket.on("reveal", ({ roomId, name, adminToken }) => {
+    const room = rooms[roomId];
+    if (room?.adminToken === adminToken) {
+      room.votesRevealed = true;
+      io.to(roomId).emit("room-state", {
+        users: room.users,
+        adminToken: room.adminToken,
+        votesRevealed: true
+      });
     }
   });
 
-  socket.on("reset", (roomId) => {
-    if (rooms[roomId]?.adminId === socket.id) {
-      Object.values(rooms[roomId].users).forEach((u) => (u.vote = null));
+  socket.on("reset", ({ roomId, name, adminToken }) => {
+    const room = rooms[roomId];
+    if (room?.adminToken === adminToken) {
+      // Reset all votes
+      Object.values(room.users).forEach((user) => (user.vote = null));
+      room.votesRevealed = false;
+
       io.to(roomId).emit("room-state", {
-        users: rooms[roomId].users,
-        adminId: rooms[roomId].adminId,
+        users: room.users,
+        adminToken: room.adminToken,
+        votesRevealed: false
       });
-      io.to(roomId).emit("reset");
     }
   });
 
   socket.on("disconnect", () => {
+    // Find all rooms the user was in
     for (const roomId in rooms) {
       const room = rooms[roomId];
-      delete room.users[socket.id];
 
-      // If admin left, assign a new one (if any users remain)
-      if (room.adminId === socket.id) {
-        const userIds = Object.keys(room.users);
-        room.adminId = userIds[0] || null;
+      // Find user by socket.id
+      const disconnectedUserName = Object.entries(room.users).find(
+        ([_, user]) => user.socketId === socket.id
+      )?.[0];
+
+      if (disconnectedUserName) {
+        // Only remove the user if they're not in the room with another socket
+        const userSockets = Object.values(room.users).filter(
+          user => user.socketId === socket.id
+        );
+
+        if (userSockets.length === 1) {
+          delete room.users[disconnectedUserName];
+
+          // If no users left, delete the room
+          if (Object.keys(room.users).length === 0) {
+            delete rooms[roomId];
+            continue;
+          }
+
+          // If room still exists, send updated state
+          if (rooms[roomId]) {
+            io.to(roomId).emit("room-state", {
+              users: room.users,
+              adminToken: room.adminToken,
+              votesRevealed: room.votesRevealed
+            });
+          }
+        }
       }
-
-      // Clean up if room is empty
-      if (Object.keys(room.users).length === 0) {
-        delete rooms[roomId];
-        continue;
-      }
-
-      io.to(roomId).emit("room-state", {
-        users: room.users,
-        adminId: room.adminId,
-      });
     }
   });
 });

@@ -5,12 +5,8 @@
     >
       <div class="flex items-center space-x-2">
         <NuxtLink to="/" class="text-xl text-blue-600 tracking-widest">
-          🎲 Free Planning Poker
+          🎲 Work Estimation Poker
         </NuxtLink>
-      </div>
-
-      <div class="text-sm text-red-700 tracking-tight">
-        ⚠️ Admin: Don’t refresh or you'll lose control!
       </div>
     </header>
 

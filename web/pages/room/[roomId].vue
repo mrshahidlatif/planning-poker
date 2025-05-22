@@ -2,149 +2,24 @@
   <div
     class="flex flex-col items-center justify-start min-h-[calc(100vh-100px)] p-6 bg-gray-50"
   >
-    <!-- Join Name Form -->
-    <div v-if="!nameSubmitted" class="w-full max-w-sm space-y-4 mt-20">
-      <h1 class="text-2xl font-bold text-center text-gray-800">
-        Enter Your Name
-      </h1>
-      <input
-        v-model="userName"
-        type="text"
-        placeholder="Your name"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button
-        :disabled="!userName.trim()"
-        class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-        @click="savedName"
-      >
-        Join Room
-      </button>
-    </div>
+    <JoinNameForm v-if="!nameSubmitted" @submit="savedName" />
 
     <!-- Game Interface -->
     <div v-else class="w-full max-w-4xl space-y-8 mt-10">
-      <!-- Header Info -->
-      <div class="text-center">
-        <h2 class="text-2xl font-semibold text-gray-800">
-          Welcome, {{ userName }}!
-        </h2>
-        <p class="text-gray-600 mt-1">
-          Room: <span class="font-mono text-blue-600">{{ roomId }}</span>
-        </p>
-        <p v-if="isAdmin" class="mt-1 text-sm font-semibold text-green-600">
-          You are the admin
-        </p>
-      </div>
+      <RoomHeader :user-name="userName" :room-id="roomId" :is-admin="isAdmin" />
 
-      <!-- Vote Selection -->
-      <div class="text-center">
-        <h3 class="text-lg font-semibold mb-3 text-gray-700">
-          Pick your estimate:
-        </h3>
-        <div class="flex flex-wrap justify-center gap-3">
-          <button
-            v-for="number in fibNumbers"
-            :key="number"
-            :disabled="votesRevealed"
-            :class="[
-              'px-5 py-3 rounded-full text-lg font-semibold transition',
-              selectedVote === number
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-              votesRevealed ? 'opacity-50 cursor-not-allowed' : '',
-            ]"
-            @click="vote(number)"
-          >
-            {{ number }}
-          </button>
-        </div>
-      </div>
+      <VoteSelection
+        :numbers="fibNumbers"
+        :selected-vote="selectedVote"
+        :disabled="votesRevealed"
+        @vote="vote"
+      />
 
-      <!-- Admin Controls -->
-      <div v-if="isAdmin" class="flex justify-center gap-4">
-        <button
-          class="px-5 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition"
-          @click="reveal"
-        >
-          Reveal
-        </button>
-        <button
-          class="px-5 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-700 transition"
-          @click="reset"
-        >
-          Reset
-        </button>
-      </div>
+      <AdminControls v-if="isAdmin" @reveal="reveal" @reset="reset" />
 
-      <div
-        v-if="votesRevealed && voteStats"
-        class="text-center font-normal text-neutral-500"
-      >
-        <p class="tracking-widest text-xl mb-6">Votes revealed</p>
+      <VoteResults v-if="votesRevealed && voteStats" :stats="voteStats" />
 
-        <div
-          class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end justify-center"
-        >
-          <!-- Min vote -->
-          <div v-if="voteStats.min" class="space-y-2">
-            <p class="text-9xl font-extrabold">{{ voteStats.min.value }}</p>
-            <p class="text-gray-700 text-sm">
-              {{ voteStats.min.count }} vote{{
-                voteStats.min.count > 1 ? "s" : ""
-              }}
-            </p>
-            <p class="text-sm text-gray-500">Min</p>
-          </div>
-
-          <!-- Most frequent vote -->
-          <div class="space-y-2">
-            <p class="text-9xl font-extrabold">
-              {{ voteStats.mostFrequent.value }}
-            </p>
-            <p class="text-gray-700 text-sm">
-              {{ voteStats.mostFrequent.times }} vote{{
-                voteStats.mostFrequent.times > 1 ? "s" : ""
-              }}
-            </p>
-            <p class="text-sm text-gray-500">Most Frequent</p>
-          </div>
-
-          <!-- Max vote -->
-          <div v-if="voteStats.max" class="space-y-2">
-            <p class="text-9xl font-extrabold">{{ voteStats.max.value }}</p>
-            <p class="text-gray-700 text-sm">
-              {{ voteStats.max.count }} vote{{
-                voteStats.max.count > 1 ? "s" : ""
-              }}
-            </p>
-            <p class="text-sm text-gray-500">Max</p>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h4 class="text-lg font-semibold mb-2 text-gray-800">Participants</h4>
-        <ul class="space-y-2">
-          <li
-            v-for="(user, socketId) in users"
-            :key="socketId"
-            class="flex justify-between items-center px-4 py-2 bg-white rounded-md shadow-sm"
-          >
-            <span class="text-gray-700 font-medium">{{ user.name }}</span>
-            <span class="text-sm">
-              <span v-if="votesRevealed">
-                <strong>{{ user.vote ?? "No vote" }}</strong>
-              </span>
-              <span v-else>
-                <em class="text-gray-500">{{
-                  user.vote ? "Voted" : "Waiting"
-                }}</em>
-              </span>
-            </span>
-          </li>
-        </ul>
-      </div>
+      <ParticipantsList :users="users" :votes-revealed="votesRevealed" />
     </div>
   </div>
 </template>
@@ -163,6 +38,7 @@ const nameSubmitted = ref(false);
 const selectedVote = ref<Vote>(null);
 const votesRevealed = ref(false);
 const isAdmin = ref(false);
+const adminToken = ref("");
 
 const users = ref<Record<string, User>>({});
 
@@ -172,31 +48,65 @@ const socket = useWebSocket();
 
 const roomId = computed(() => route.params.roomId);
 
-const savedName = (): void => {
-  if (!userName.value.trim()) return;
+const generateAdminToken = () => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
-  sessionStorage.setItem(`name:${roomId.value}`, userName.value);
+const savedName = (name: string): void => {
+  if (!name.trim()) return;
 
+  // Check if this is a new room (no name stored for this room)
+  const isNewRoom = !sessionStorage.getItem(`name:${roomId.value}`);
+
+  if (isNewRoom) {
+    // Generate and store admin token for new room
+    adminToken.value = generateAdminToken();
+    sessionStorage.setItem(`adminToken:${roomId.value}`, adminToken.value);
+  } else {
+    // Get existing admin token
+    adminToken.value =
+      sessionStorage.getItem(`adminToken:${roomId.value}`) || "";
+  }
+
+  sessionStorage.setItem(`name:${roomId.value}`, name);
+  userName.value = name;
   nameSubmitted.value = true;
 
   socket.emit("join-room", {
     roomId: roomId.value,
-    name: userName.value,
+    name: name,
+    adminToken: adminToken.value,
   });
 };
 
 const vote = (vote: number | "?"): void => {
   if (votesRevealed.value) return;
   selectedVote.value = vote;
-  socket.emit("vote", { roomId: roomId.value, vote });
+  socket.emit("vote", {
+    roomId: roomId.value,
+    name: userName.value,
+    vote,
+  });
 };
 
 const reveal = (): void => {
-  socket.emit("reveal", roomId.value);
+  socket.emit("reveal", {
+    roomId: roomId.value,
+    name: userName.value,
+    adminToken: adminToken.value,
+  });
 };
 
 const reset = (): void => {
-  socket.emit("reset", roomId.value);
+  socket.emit("reset", {
+    roomId: roomId.value,
+    name: userName.value,
+    adminToken: adminToken.value,
+  });
 };
 
 const voteSummary = computed(() => {
@@ -256,25 +166,23 @@ onMounted(() => {
   });
 
   const savedName = sessionStorage.getItem(`name:${roomId.value}`);
+  const storedAdminToken = sessionStorage.getItem(`adminToken:${roomId.value}`);
 
   if (savedName) {
     userName.value = savedName;
+    adminToken.value = storedAdminToken || "";
     nameSubmitted.value = true;
-    socket.emit("join-room", { roomId: roomId.value, name: savedName });
+    socket.emit("join-room", {
+      roomId: roomId.value,
+      name: savedName,
+      adminToken: adminToken.value,
+    });
   }
 
   socket.on("room-state", (data) => {
     users.value = data.users;
-    isAdmin.value = data.adminId === socket.id;
-  });
-
-  socket.on("reveal", () => {
-    votesRevealed.value = true;
-  });
-
-  socket.on("reset", () => {
-    selectedVote.value = null;
-    votesRevealed.value = false;
+    isAdmin.value = data.adminToken === adminToken.value;
+    votesRevealed.value = data.votesRevealed;
   });
 });
 </script>
