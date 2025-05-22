@@ -189,6 +189,11 @@ onMounted(() => {
     users.value = data.users;
     isAdmin.value = data.adminToken === adminToken.value;
     votesRevealed.value = data.votesRevealed;
+
+    // Reset selected vote if votes are not revealed
+    if (!data.votesRevealed) {
+      selectedVote.value = null;
+    }
   });
 });
 </script>

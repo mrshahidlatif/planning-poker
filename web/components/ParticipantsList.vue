@@ -20,7 +20,7 @@
           >
         </div>
         <div class="mt-1">
-          <span v-if="votesRevealed" class="text-xl font-bold text-blue-600">
+          <span v-if="votesRevealed" class="text-xl font-bold text-gray-600">
             {{ user.vote ?? "😢" }}
           </span>
           <span

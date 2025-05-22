@@ -1,11 +1,13 @@
 <template>
   <div class="text-center font-normal text-neutral-500">
-    <p class="tracking-widest text-xl mb-6">Votes revealed</p>
+    <p class="tracking-widest text-xl mb-3">Votes revealed</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end justify-center">
       <!-- Min vote -->
       <div v-if="stats.min" class="space-y-2">
-        <p class="text-9xl font-extrabold">{{ stats.min.value }}</p>
+        <p class="text-7xl font-extrabold text-gray-600">
+          {{ stats.min.value }}
+        </p>
         <p class="text-gray-700 text-sm">
           {{ stats.min.count }} vote{{ stats.min.count > 1 ? "s" : "" }}
         </p>
@@ -14,7 +16,7 @@
 
       <!-- Most frequent vote -->
       <div class="space-y-2">
-        <p class="text-9xl font-extrabold">
+        <p class="text-7xl font-extrabold text-green-600">
           {{ stats.mostFrequent.value }}
         </p>
         <p class="text-gray-700 text-sm">
@@ -27,7 +29,9 @@
 
       <!-- Max vote -->
       <div v-if="stats.max" class="space-y-2">
-        <p class="text-9xl font-extrabold">{{ stats.max.value }}</p>
+        <p class="text-7xl font-extrabold text-red-600">
+          {{ stats.max.value }}
+        </p>
         <p class="text-gray-700 text-sm">
           {{ stats.max.count }} vote{{ stats.max.count > 1 ? "s" : "" }}
         </p>
