@@ -36,19 +36,19 @@
               >Admin</span
             >
           </div>
-          <div class="mt-1">
-            <span v-if="votesRevealed" class="text-xl font-bold text-gray-600 flex items-center">
-              <template v-if="user.vote !== null">{{ user.vote }}</template>
+          <div class="mt-2">
+            <span v-if="votesRevealed" class="text-xl font-bold text-gray-600">
+              <p v-if="user.vote !== null">{{ user.vote }}</p>
               <Icon v-else name="material-symbols:cancel-outline-rounded" class="text-red-400" size="22" />
             </span>
             <span
-              v-else-if="user.vote"
-              class="text-sm text-green-500 font-medium flex items-center"
+              v-else-if="user.vote !== null"
+              
             >
-              <Icon name="material-symbols:check-circle" size="22" />
+              <Icon name="material-symbols:check-circle" class="text-green-500" size="22" />
             </span>
             <div v-else class="flex items-center">
-              <Spinner size="sm" />
+              <Spinner size="md" />
             </div>
           </div>
         </div>

@@ -1,8 +1,8 @@
 <template>
   <div class="text-center">
-    <h3 class="text-lg font-semibold mb-3 text-gray-700">
+    <p class="text-md mb-2 text-gray-700">
       Pick your estimate:
-    </h3>
+    </p>
     <div class="flex flex-wrap justify-center gap-3">
       <button
         v-for="number in numbers"

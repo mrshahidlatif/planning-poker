@@ -5,7 +5,7 @@
     <JoinNameForm v-if="!nameSubmitted" @submit="savedName" />
 
     <!-- Game Interface -->
-    <div v-else class="w-full max-w-4xl space-y-8 mt-10">
+    <div v-else class="w-full max-w-4xl space-y-5 mt-2">
       <RoomHeader :user-name="userName" :room-id="roomId" :is-admin="isAdmin" />
 
       <VoteSelection
