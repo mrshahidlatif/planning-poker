@@ -21,7 +21,12 @@
           title="Share room url with your team"
           @click="copyRoomUrl"
         >
-          <Icon name="material-symbols:share" size="22" />
+          <Icon 
+            :name="isShared ? 'material-symbols:check-circle-outline' : 'material-symbols:share'" 
+            size="22"
+            class="transform transition-all duration-300 ease-in-out"
+            :class="{ 'scale-110': isShared }"
+          />
         </button>
       </span>
     </header>
@@ -43,7 +48,13 @@ import AppIcon from "~/components/AppIcon.vue";
 
 const route = useRoute();
 
+const isShared = ref(false);
+
 const copyRoomUrl = async () => {
   await navigator.clipboard.writeText(window.location.href);
+  isShared.value = true;
+  setTimeout(() => {
+    isShared.value = false;
+  }, 1500);
 };
 </script>

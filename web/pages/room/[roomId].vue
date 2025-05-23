@@ -51,15 +51,7 @@ const fibNumbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
 
 const socket = useWebSocket();
 
-const roomId = computed(() => route.params.roomId);
-
-const generateAdminToken = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
+const roomId = computed(() => String(route.params.roomId));
 
 const savedName = (name: string): void => {
   if (!name.trim()) return;
@@ -69,7 +61,7 @@ const savedName = (name: string): void => {
 
   if (isNewRoom) {
     // Generate and store admin token for new room
-    adminToken.value = generateAdminToken();
+    adminToken.value = crypto.randomUUID();
     sessionStorage.setItem(`adminToken:${roomId.value}`, adminToken.value);
   } else {
     // Get existing admin token
@@ -88,9 +80,9 @@ const savedName = (name: string): void => {
   });
 };
 
-const vote = (vote: number | "?"): void => {
+const vote = (vote: string | number): void => {
   if (votesRevealed.value) return;
-  selectedVote.value = vote;
+  selectedVote.value = vote as Vote;
   socket.emit("vote", {
     roomId: roomId.value,
     name: userName.value,
@@ -156,7 +148,7 @@ const voteStats = computed(() => {
     }
   }
 
-  const mostFrequent = { value: vote, times };
+  const mostFrequent = { value: vote || '', times };
 
   return {
     min: minVote,
