@@ -36,9 +36,9 @@
     </main>
 
     <footer
-      class="fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-[0.15rem] font-light"
+      class="fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
     >
-      Shahid Latif &#x2022; slatif@dataguard.de &#x2022; 2025
+      Shahid Latif | slatif@dataguard.de
     </footer>
   </div>
 </template>

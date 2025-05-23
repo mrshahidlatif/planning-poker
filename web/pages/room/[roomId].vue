@@ -24,6 +24,8 @@
         :votes-revealed="votesRevealed"
         :is-admin="isAdmin"
         :current-user-name="userName"
+        :is-loading="isLoadingParticipants"
+        :error="participantsError"
       />
     </div>
   </div>
@@ -44,6 +46,8 @@ const selectedVote = ref<Vote>(null);
 const votesRevealed = ref(false);
 const isAdmin = ref(false);
 const adminToken = ref("");
+const isLoadingParticipants = ref(true);
+const participantsError = ref<string | undefined>();
 
 const users = ref<Record<string, User>>({});
 
@@ -56,6 +60,7 @@ const roomId = computed(() => String(route.params.roomId));
 const savedName = (name: string): void => {
   if (!name.trim()) return;
 
+  isLoadingParticipants.value = true;
   // Check if this is a new room (no name stored for this room)
   const isNewRoom = !sessionStorage.getItem(`name:${roomId.value}`);
 
@@ -161,8 +166,12 @@ const voteStats = computed(() => {
 onMounted(() => {
   socket.on("connect", () => {
     if (!socket.id) return;
-
     socketId.value = socket.id;
+  });
+
+  socket.on("connect_error", () => {
+    participantsError.value = "Failed to connect to server. Please try again later.";
+    isLoadingParticipants.value = false;
   });
 
   const savedName = sessionStorage.getItem(`name:${roomId.value}`);
@@ -172,6 +181,8 @@ onMounted(() => {
     userName.value = savedName;
     adminToken.value = storedAdminToken || "";
     nameSubmitted.value = true;
+    isLoadingParticipants.value = true;
+    participantsError.value = undefined;
     socket.emit("join-room", {
       roomId: roomId.value,
       name: savedName,
@@ -180,15 +191,22 @@ onMounted(() => {
   }
 
   socket.on("room-state", (data) => {
+    participantsError.value = undefined;
     users.value = data.users;
     isAdmin.value = data.adminToken === adminToken.value;
     votesRevealed.value = data.votesRevealed;
+    isLoadingParticipants.value = false;
 
     // Update selected vote based on the user's current vote in the room state
     const currentUser = data.users[userName.value];
     if (currentUser) {
       selectedVote.value = currentUser.vote;
     }
+  });
+
+  socket.on("error", (error) => {
+    participantsError.value = error.message || "An error occurred while connecting to the room.";
+    isLoadingParticipants.value = false;
   });
 });
 </script>
