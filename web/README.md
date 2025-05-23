@@ -1,75 +1,86 @@
-# Nuxt Minimal Starter
+# Planning Poker Web Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 3 frontend for the Planning Poker application, providing a modern and responsive user interface for agile estimation sessions.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- 🎨 Modern UI with Tailwind CSS
+- 🔄 Real-time updates with Socket.IO
+- 📱 Responsive design
+- 🎲 Interactive voting interface
+- 📊 Real-time vote statistics
+- 👥 Participant management
 
-```bash
-# npm
-npm install
+## Tech Stack
 
-# pnpm
-pnpm install
+- Nuxt 3
+- Vue 3
+- TypeScript
+- Tailwind CSS
+- Socket.IO Client
+- Nuxt Icon
 
-# yarn
-yarn install
+## Getting Started
 
-# bun
-bun install
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Set up environment variables:
+   Create a `.env` file:
+
+   ```env
+   VITE_SERVER_URL=http://localhost:3001
+   ```
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+   The app will be available at [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+web/
+├── components/     # Reusable Vue components
+├── composables/    # Shared composable functions
+├── layouts/        # Page layouts
+├── pages/         # Application pages
+├── public/        # Static assets
+└── types/         # TypeScript type definitions
 ```
 
-## Development Server
+## Key Components
 
-Start the development server on `http://localhost:3000`:
+- `JoinNameForm`: User registration form
+- `RoomHeader`: Room information and sharing
+- `VoteSelection`: Voting interface
+- `VoteResults`: Vote statistics display
+- `ParticipantsList`: Real-time participant tracking
+- `AdminControls`: Room management for admins
 
-```bash
-# npm
-npm run dev
+## Environment Variables
 
-# pnpm
-pnpm dev
+- `VITE_SERVER_URL`: WebSocket server URL (required)
 
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
+## Build
 
 ```bash
-# npm
+# Production build
 npm run build
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
+# Preview production build
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Development Guidelines
+
+- Use TypeScript for all new components and functions
+- Follow Vue 3 Composition API patterns
+- Maintain responsive design principles
+- Keep components focused and reusable
