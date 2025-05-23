@@ -7,12 +7,15 @@
       <div
         v-for="(user, socketId) in users"
         :key="socketId"
-        class="bg-white rounded-lg shadow-sm p-3 flex flex-col justify-between h-20"
+        :class="[
+          'bg-white rounded-lg shadow-sm p-3 flex flex-col justify-between h-20',
+          { '!bg-red-50': votesRevealed && user.vote === null },
+        ]"
       >
         <div class="flex items-center justify-between">
-          <span class="text-gray-700 font-medium truncate">{{
-            user.name
-          }}</span>
+          <span class="text-gray-700 font-medium truncate tracking-wide">
+            {{ user.name }}
+          </span>
           <span
             v-if="isAdmin && user.name === currentUserName"
             class="text-xs text-green-600 font-medium"

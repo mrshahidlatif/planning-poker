@@ -7,14 +7,16 @@
       <button
         v-for="number in numbers"
         :key="number"
-        :disabled="disabled"
         :class="[
           'px-5 py-3 rounded-full text-lg font-semibold transition',
-          selectedVote === number
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-          disabled ? 'opacity-50 cursor-not-allowed' : '',
+          {
+            'bg-blue-600 text-white': selectedVote === number,
+            'bg-gray-200 text-gray-800 hover:bg-gray-300':
+              selectedVote !== number,
+            'opacity-50 cursor-not-allowed': disabled,
+          },
         ]"
+        :disabled="disabled"
         @click="onVote(number)"
       >
         {{ number }}
@@ -36,6 +38,7 @@ const emit = defineEmits<{
 
 const onVote = (vote: number | string) => {
   if (props.disabled) return;
+
   emit("vote", vote);
 };
 </script>

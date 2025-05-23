@@ -168,6 +168,8 @@ const voteStats = computed(() => {
 
 onMounted(() => {
   socket.on("connect", () => {
+    if (!socket.id) return;
+
     socketId.value = socket.id;
   });
 
@@ -190,9 +192,10 @@ onMounted(() => {
     isAdmin.value = data.adminToken === adminToken.value;
     votesRevealed.value = data.votesRevealed;
 
-    // Reset selected vote if votes are not revealed
-    if (!data.votesRevealed) {
-      selectedVote.value = null;
+    // Update selected vote based on the user's current vote in the room state
+    const currentUser = data.users[userName.value];
+    if (currentUser) {
+      selectedVote.value = currentUser.vote;
     }
   });
 });
