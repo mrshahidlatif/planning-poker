@@ -29,4 +29,10 @@ export default defineNuxtConfig({
     "@nuxt/test-utils",
     "@nuxt/ui",
   ],
+
+  runtimeConfig: {
+    public: {
+      webSocketUrl: process.env.NUXT_PUBLIC_WEB_SOCKET_URL,
+    },
+  },
 });

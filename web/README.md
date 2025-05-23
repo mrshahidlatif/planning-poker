@@ -32,7 +32,7 @@ Nuxt 3 frontend for the Planning Poker application, providing a modern and respo
    Create a `.env` file:
 
    ```env
-   VITE_SERVER_URL=http://localhost:3001
+   NUXT_PUBLIC_WEB_SOCKET_URL=http://localhost:3001
    ```
 
 3. Start the development server:
@@ -66,7 +66,7 @@ web/
 
 ## Environment Variables
 
-- `VITE_SERVER_URL`: WebSocket server URL (required)
+- `NUXT_PUBLIC_WEB_SOCKET_URL`: WebSocket server URL (required)
 
 ## Build
 

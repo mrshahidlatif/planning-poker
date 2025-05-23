@@ -1,8 +1,13 @@
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
 
-const url =
-  import.meta.env.VITE_WEB_SOCKET_SERVER_URL || "http://localhost:3001";
+const config = useRuntimeConfig();
+
+if (!config.public.webSocketUrl) {
+  throw new Error("NUXT_PUBLIC_WEB_SOCKET_URL is not set");
+}
+
+const url = config.public.webSocketUrl;
 
 let socket: Socket;
 
