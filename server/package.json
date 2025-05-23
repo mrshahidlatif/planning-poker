@@ -1,15 +1,27 @@
 {
   "name": "planning-poker-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Real-time planning poker server using Socket.IO for agile estimation",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "planning-poker",
+    "agile",
+    "scrum",
+    "estimation",
+    "socket.io",
+    "real-time"
+  ],
+  "author": "Shahid Latif",
   "license": "ISC",
   "dependencies": {
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }

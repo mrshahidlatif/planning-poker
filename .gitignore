@@ -18,7 +18,5 @@ web/.DS_Store
 
 # Local env files
 .env
-.env.*
-!.env.example
 
 server/node_modules/
