@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: "Free Planning Poker",
+      title: "Agile Work Estimation Poker",
       htmlAttrs: {
         lang: "en",
       },

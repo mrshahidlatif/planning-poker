@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center gap-8">
     <button
-      class="px-5 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-700 transition"
+      class="px-5 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700 transition"
       @click="onReveal"
     >
       Reveal
