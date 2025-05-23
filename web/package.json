@@ -1,5 +1,12 @@
 {
-  "name": "nuxt-app",
+  "name": "agile-work-estimation-poker",
+  "version": "0.0.1",
+  "description": "A real-time planning poker application for agile teams to estimate story points collaboratively",
+  "author": {
+    "name": "Shahid Latif",
+    "email": "slatif@dataguard.de"
+  },
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
