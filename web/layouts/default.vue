@@ -38,7 +38,9 @@
     <footer
       class="fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
     >
-      Shahid Latif | slatif@dataguard.de
+      <a href="mailto:support@ukkaab.com" class="text-blue-600 hover:text-blue-700">
+        support@ukkaab.com
+      </a>
     </footer>
   </div>
 </template>

@@ -15,7 +15,52 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "canonical", href: "https://estimate.ukkaab.com" },
+      ],
+      meta: [
+        {
+          name: "description",
+          content:
+            "Estimate user stories and collaborate with your agile team using our free planning poker tool.",
+        },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "robots", content: "index, follow" },
+
+        // Open Graph
+        {
+          property: "og:title",
+          content: "Estimate Poker - Agile Planning Made Easy",
+        },
+        {
+          property: "og:description",
+          content:
+            "Estimate user stories and collaborate with your agile team using our free planning poker tool.",
+        },
+        {
+          property: "og:image",
+          content: "https://estimate.ukkaab.com/preview.png",
+        },
+        { property: "og:url", content: "https://estimate.ukkaab.com" },
+        { property: "og:type", content: "website" },
+
+        // Twitter
+        { name: "twitter:card", content: "summary_large_image" },
+        {
+          name: "twitter:title",
+          content: "Estimate Poker - Agile Planning Made Easy",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Estimate user stories and collaborate with your agile team using our free planning poker tool.",
+        },
+        {
+          name: "twitter:image",
+          content: "https://estimate.ukkaab.com/preview.png",
+        },
+      ],
     },
   },
 
