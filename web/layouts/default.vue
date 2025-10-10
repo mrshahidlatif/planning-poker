@@ -21,8 +21,12 @@
           title="Share room url with your team"
           @click="copyRoomUrl"
         >
-          <Icon 
-            :name="isShared ? 'material-symbols:check-circle-outline' : 'material-symbols:share'" 
+          <Icon
+            :name="
+              isShared
+                ? 'material-symbols:check-circle-outline'
+                : 'material-symbols:share'
+            "
             size="22"
             class="transform transition-all duration-300 ease-in-out"
             :class="{ 'scale-110': isShared }"
@@ -36,9 +40,14 @@
     </main>
 
     <footer
-      class="fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
+      class="flex justify-end items-center fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
     >
-      <a href="mailto:support@ukkaab.com" class="text-blue-600 hover:text-blue-700">
+      <p class="px-5">v0.1.1</p>
+
+      <a
+        href="mailto:support@ukkaab.com"
+        class="text-blue-600 hover:text-blue-700"
+      >
         support@ukkaab.com
       </a>
     </footer>
