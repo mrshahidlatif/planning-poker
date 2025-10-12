@@ -32,7 +32,6 @@ export const useSessionStore = defineStore("session", () => {
   const createSession = (name: string) => {
     if (!name.trim()) return;
 
-    isLoading.value = true;
     error.value = undefined;
 
     // Get existing session or create new one
@@ -59,6 +58,7 @@ export const useSessionStore = defineStore("session", () => {
     }
 
     joinRoom(name);
+    isLoading.value = true;
   };
 
   const joinRoom = (userName: string) => {
