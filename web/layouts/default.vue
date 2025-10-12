@@ -66,7 +66,7 @@ const { roomId } = storeToRefs(sessionStore);
 const isShared = ref(false);
 
 const copyRoomUrl = async () => {
-  if (process.client) {
+  if (import.meta.client) {
     await navigator.clipboard.writeText(window.location.href);
     isShared.value = true;
     setTimeout(() => {
