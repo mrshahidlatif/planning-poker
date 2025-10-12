@@ -11,13 +11,13 @@ export const useSessionStore = defineStore("session", () => {
     useSession();
 
   const roomId = ref("");
-  const isLoadingParticipants = ref(true);
+  const isLoading = ref(true);
   const error = ref<string | undefined>();
 
   const initialize = (newRoomId: string) => {
     roomId.value = newRoomId;
     error.value = undefined;
-    isLoadingParticipants.value = true;
+    isLoading.value = true;
 
     // Check for existing session
     const session = getSession();
@@ -32,7 +32,7 @@ export const useSessionStore = defineStore("session", () => {
   const createSession = (name: string) => {
     if (!name.trim()) return;
 
-    isLoadingParticipants.value = true;
+    isLoading.value = true;
     error.value = undefined;
 
     // Get existing session or create new one
@@ -74,13 +74,13 @@ export const useSessionStore = defineStore("session", () => {
 
   const handleRoomState = (data: any) => {
     error.value = undefined;
-    isLoadingParticipants.value = false;
+    isLoading.value = false;
   };
 
   const handleError = (errorData: any) => {
     error.value =
       errorData.message || "An error occurred while connecting to the room.";
-    isLoadingParticipants.value = false;
+    isLoading.value = false;
   };
 
   const clearError = () => {
@@ -89,13 +89,13 @@ export const useSessionStore = defineStore("session", () => {
 
   const destroy = () => {
     roomId.value = "";
-    isLoadingParticipants.value = true;
+    isLoading.value = true;
     error.value = undefined;
   };
 
   return {
     roomId,
-    isLoadingParticipants,
+    isLoading,
     error,
     initialize,
     createSession,

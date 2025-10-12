@@ -15,7 +15,7 @@
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
     >
       <!-- Loading State -->
-      <template v-if="isLoading">
+      <template v-if="isLoading && !error">
         <ParticipantSkeleton v-for="i in 4" :key="i" />
       </template>
 
@@ -90,9 +90,10 @@ const { adminUserId } = defineProps<{
   votesRevealed: boolean;
   adminUserId?: string;
   currentUserName: string;
-  isLoading?: boolean;
-  error?: string;
 }>();
+
+const { isLoading } = storeToRefs(useSessionStore());
+const { error } = storeToRefs(useWebSocketStore());
 
 // Check if current user is admin
 const isCurrentUserAdmin = computed(() => {

@@ -44,8 +44,6 @@
         :votes-revealed="votingStore.votesRevealed"
         :admin-user-id="adminUserId"
         :current-user-name="userStore.userName"
-        :is-loading="sessionStore.isLoadingParticipants"
-        :error="sessionStore.error"
         @make-admin="handleMakeAdmin"
       />
     </div>
