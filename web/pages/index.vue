@@ -21,38 +21,24 @@
 <script setup lang="ts">
 const router = useRouter();
 
-const getRoomId = () => {
-  const adjectives = [
-    "Witty",
-    "Cheesy",
-    "Speedy",
-    "Fuzzy",
-    "Cranky",
-    "Angry",
-    "Evil",
-    "Loving",
-    "Flying",
-  ];
-  const animals = [
-    "Unicorn",
-    "Koala",
-    "Llama",
-    "Tiger",
-    "Penguin",
-    "Monkey",
-    "Owl",
-    "Duck",
-  ];
+import { getRoomId } from "~/utils/generateRoomId";
+import { useSession } from "~/composables/useSession";
 
-  const randomAdjective =
-    adjectives[Math.floor(Math.random() * adjectives.length)];
-  const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
-
-  return `${randomAdjective}${randomAnimal}${Math.floor(Math.random() * 1000)}`;
-};
+const { saveSession } = useSession();
 
 const createRoom = (): void => {
-  const roomId = getRoomId();
+  const { roomId, roomName } = getRoomId();
+
+  const userId = crypto.randomUUID();
+  const adminId = crypto.randomUUID();
+
+  saveSession({
+    roomId,
+    userId,
+    userName: "",
+    adminId,
+  });
+
   router.push(`/room/${roomId}`);
 };
 </script>

@@ -2,211 +2,122 @@
   <div
     class="flex flex-col items-center justify-start min-h-[calc(100vh-100px)] p-6 bg-gray-50"
   >
-    <JoinNameForm v-if="!nameSubmitted" @submit="savedName" />
+    <JoinRoomForm
+      v-if="!userStore.nameSubmitted"
+      @submit="sessionStore.createSession"
+    />
 
     <!-- Game Interface -->
     <div v-else class="w-full max-w-4xl space-y-5 mt-2">
-      <RoomHeader :user-name="userName" :room-id="roomId" :is-admin="isAdmin" />
+      <!-- Notification -->
+      <div
+        v-if="userStore.notification"
+        class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-2 text-blue-600"
+      >
+        <Icon name="material-symbols:info-outline-rounded" size="22" />
+        <span>{{ userStore.notification }}</span>
+      </div>
 
-      <VoteSelection
-        :numbers="fibNumbers"
-        :selected-vote="selectedVote"
-        :disabled="votesRevealed"
-        @vote="vote"
+      <RoomHeader
+        :user-name="userStore.userName"
+        :room-id="sessionStore.roomId"
+        :is-admin="userStore.isAdmin"
       />
 
-      <AdminControls v-if="isAdmin" @reveal="reveal" @reset="reset" />
+      <VoteSelection
+        :options
+        :selected-vote="votingStore.selectedVote"
+        :disabled="votingStore.votesRevealed"
+        @vote="votingStore.vote"
+      />
 
-      <VoteResults v-if="votesRevealed && voteStats" :stats="voteStats" />
+      <AdminControls
+        v-if="userStore.isAdmin"
+        @reveal="votingStore.reveal"
+        @reset="votingStore.reset"
+      />
+
+      <VoteResults v-if="voteStatsForDisplay" :stats="voteStatsForDisplay" />
 
       <ParticipantsList
-        :users="users"
-        :votes-revealed="votesRevealed"
-        :is-admin="isAdmin"
-        :current-user-name="userName"
-        :is-loading="isLoadingParticipants"
-        :error="participantsError"
+        :users="userStore.users"
+        :votes-revealed="votingStore.votesRevealed"
+        :admin-user-id="adminUserId"
+        :current-user-name="userStore.userName"
+        @make-admin="handleMakeAdmin"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useWebSocket } from "~/composables/useWebSocket";
+import { useSessionStore } from "~/stores/useSessionStore";
+import { useUserStore } from "~/stores/useUserStore";
+import { useVotingStore } from "~/stores/voting";
+import { useWebSocketStore } from "~/stores/useWebSocketStore";
 
-type User = { name: string; vote: number | "?" | null };
-type Vote = number | "?" | null;
+const options = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
 
 const route = useRoute();
-
-const userName = ref("");
-const socketId = ref("");
-const nameSubmitted = ref(false);
-const selectedVote = ref<Vote>(null);
-const votesRevealed = ref(false);
-const isAdmin = ref(false);
-const adminToken = ref("");
-const isLoadingParticipants = ref(true);
-const participantsError = ref<string | undefined>();
-
-const users = ref<Record<string, User>>({});
-
-const fibNumbers = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
-
-const socket = useWebSocket();
+const sessionStore = useSessionStore();
+const userStore = useUserStore();
+const votingStore = useVotingStore();
+const websocketStore = useWebSocketStore();
+const adminUserId = ref<string>();
 
 const roomId = computed(() => String(route.params.roomId));
 
-const savedName = (name: string): void => {
-  if (!name.trim()) return;
+const voteStatsForDisplay = computed(() =>
+  votingStore.votesRevealed && votingStore.voteStats
+    ? votingStore.voteStats
+    : null
+);
 
-  isLoadingParticipants.value = true;
-  // Check if this is a new room (no name stored for this room)
-  const isNewRoom = !sessionStorage.getItem(`name:${roomId.value}`);
+const setupWebSocketListeners = () => {
+  websocketStore.init();
 
-  if (isNewRoom) {
-    // Generate and store admin token for new room
-    adminToken.value = crypto.randomUUID();
-    sessionStorage.setItem(`adminToken:${roomId.value}`, adminToken.value);
-  } else {
-    // Get existing admin token
-    adminToken.value =
-      sessionStorage.getItem(`adminToken:${roomId.value}`) || "";
-  }
+  websocketStore.socket.on("room-state", (data) => {
+    sessionStore.handleRoomState(data);
+    userStore.handleRoomState(data);
+    votingStore.handleVotesRevealed(data.votesRevealed);
 
-  sessionStorage.setItem(`name:${roomId.value}`, name);
-  userName.value = name;
-  nameSubmitted.value = true;
+    adminUserId.value = data.adminUserId;
 
-  socket.emit("join-room", {
-    roomId: roomId.value,
-    name: name,
-    adminToken: adminToken.value,
-  });
-};
-
-const vote = (vote: string | number): void => {
-  if (votesRevealed.value) return;
-  selectedVote.value = vote as Vote;
-  socket.emit("vote", {
-    roomId: roomId.value,
-    name: userName.value,
-    vote,
-  });
-};
-
-const reveal = (): void => {
-  socket.emit("reveal", {
-    roomId: roomId.value,
-    name: userName.value,
-    adminToken: adminToken.value,
-  });
-};
-
-const reset = (): void => {
-  selectedVote.value = null;
-  socket.emit("reset", {
-    roomId: roomId.value,
-    name: userName.value,
-    adminToken: adminToken.value,
-  });
-};
-
-const voteSummary = computed(() => {
-  const countMap: Record<string, number> = {};
-
-  for (const user of Object.values(users.value)) {
-    const vote = user.vote ?? "No vote";
-    countMap[vote] = (countMap[vote] || 0) + 1;
-  }
-
-  return Object.entries(countMap).map(([value, count]) => ({
-    value,
-    count,
-  }));
-});
-
-const voteStats = computed(() => {
-  if (!votesRevealed.value) return null;
-
-  const votes = voteSummary.value.filter((v) => v.value !== "No vote");
-
-  if (!votes.length) return null;
-
-  // Sort numerically, treating "?" as special
-  const numericVotes = votes.filter((v) => v.value !== "?");
-  const questionVote = votes.find((v) => v.value === "?");
-
-  numericVotes.sort((a, b) => Number(a.value) - Number(b.value));
-
-  const minVote = numericVotes[0];
-  const maxVote = numericVotes[numericVotes.length - 1];
-
-  // Compute most frequent vote
-  let times = 0;
-  let vote: string | null = null;
-
-  for (const { value, count } of votes) {
-    if (count > times) {
-      times = count;
-      vote = value;
+    const currentUser = data.users[userStore.userId];
+    if (currentUser) {
+      votingStore.handleUserVote(userStore.userId, currentUser.vote);
     }
-  }
+  });
 
-  const mostFrequent = { value: vote || '', times };
+  websocketStore.socket.on("error", (error) => {
+    sessionStore.handleError(error);
+  });
+};
 
-  return {
-    min: minVote,
-    max: maxVote,
-    mostFrequent,
-    questionVote,
-  };
-});
+const cleanupWebSocketListeners = () => {
+  websocketStore.clear();
+  websocketStore.socket.off("room-state");
+  websocketStore.socket.off("error");
+};
+
+const handleMakeAdmin = (userId: string) => {
+  websocketStore.socket.emit("make-admin", {
+    roomId: sessionStore.roomId,
+    adminUserId: userStore.userId,
+    newAdminUserId: userId,
+  });
+};
 
 onMounted(() => {
-  socket.on("connect", () => {
-    if (!socket.id) return;
-    socketId.value = socket.id;
-  });
+  userStore.initialize();
+  sessionStore.initialize(roomId.value);
+  setupWebSocketListeners();
+});
 
-  socket.on("connect_error", () => {
-    participantsError.value = "Failed to connect to server. Please try again later.";
-    isLoadingParticipants.value = false;
-  });
-
-  const savedName = sessionStorage.getItem(`name:${roomId.value}`);
-  const storedAdminToken = sessionStorage.getItem(`adminToken:${roomId.value}`);
-
-  if (savedName) {
-    userName.value = savedName;
-    adminToken.value = storedAdminToken || "";
-    nameSubmitted.value = true;
-    isLoadingParticipants.value = true;
-    participantsError.value = undefined;
-    socket.emit("join-room", {
-      roomId: roomId.value,
-      name: savedName,
-      adminToken: adminToken.value,
-    });
-  }
-
-  socket.on("room-state", (data) => {
-    participantsError.value = undefined;
-    users.value = data.users;
-    isAdmin.value = data.adminToken === adminToken.value;
-    votesRevealed.value = data.votesRevealed;
-    isLoadingParticipants.value = false;
-
-    // Update selected vote based on the user's current vote in the room state
-    const currentUser = data.users[userName.value];
-    if (currentUser) {
-      selectedVote.value = currentUser.vote;
-    }
-  });
-
-  socket.on("error", (error) => {
-    participantsError.value = error.message || "An error occurred while connecting to the room.";
-    isLoadingParticipants.value = false;
-  });
+onUnmounted(() => {
+  cleanupWebSocketListeners();
+  sessionStore.destroy();
+  userStore.reset();
+  votingStore.resetState();
 });
 </script>

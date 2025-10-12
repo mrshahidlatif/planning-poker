@@ -73,6 +73,7 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
     "@nuxt/test-utils",
     "@nuxt/ui",
+    "@pinia/nuxt",
   ],
 
   runtimeConfig: {

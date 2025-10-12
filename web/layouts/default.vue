@@ -15,7 +15,7 @@
         class="text-gray-600 flex items-center gap-2"
       >
         Room:
-        <span class="font-mono text-blue-600">{{ route.params.roomId }}</span>
+        <span class="font-semibold text-blue-600">{{ roomId }}</span>
         <button
           class="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors cursor-pointer flex items-center justify-center"
           title="Share room url with your team"
@@ -42,7 +42,7 @@
     <footer
       class="flex justify-end items-center fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
     >
-      <p class="px-5">v0.1.1</p>
+      <p class="px-5">v0.2.0</p>
 
       <a
         href="mailto:support@ukkaab.com"
@@ -56,16 +56,22 @@
 
 <script setup lang="ts">
 import AppIcon from "~/components/AppIcon.vue";
+import { useSessionStore } from "~/stores/useSessionStore";
+import { storeToRefs } from "pinia";
 
 const route = useRoute();
+const sessionStore = useSessionStore();
+const { roomId } = storeToRefs(sessionStore);
 
 const isShared = ref(false);
 
 const copyRoomUrl = async () => {
-  await navigator.clipboard.writeText(window.location.href);
-  isShared.value = true;
-  setTimeout(() => {
-    isShared.value = false;
-  }, 1500);
+  if (process.client) {
+    await navigator.clipboard.writeText(window.location.href);
+    isShared.value = true;
+    setTimeout(() => {
+      isShared.value = false;
+    }, 1500);
+  }
 };
 </script>
