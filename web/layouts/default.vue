@@ -42,7 +42,7 @@
     <footer
       class="flex justify-end items-center fixed bottom-0 w-full py-2 text-right pr-4 text-gray-500 text-xs tracking-widest font-light"
     >
-      <p class="px-5">v0.1.1</p>
+      <p class="px-5">v0.2.0</p>
 
       <a
         href="mailto:support@ukkaab.com"
