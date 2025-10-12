@@ -57,7 +57,7 @@ web/
 
 ## Key Components
 
-- `JoinNameForm`: User registration form
+- `JoinRoomForm`: User registration form
 - `RoomHeader`: Room information and sharing
 - `VoteSelection`: Voting interface
 - `VoteResults`: Vote statistics display

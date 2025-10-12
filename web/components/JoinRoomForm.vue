@@ -4,14 +4,14 @@
       Enter Your Name
     </h1>
     <input
-      v-model="name"
+      v-model="userName"
       type="text"
       placeholder="Your name"
       autocomplete="name"
       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
     <button
-      :disabled="!name.trim()"
+      :disabled="!userName.trim()"
       class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
       @click="onSubmit"
     >
@@ -21,14 +21,14 @@
 </template>
 
 <script setup lang="ts">
-const name = ref("");
+const userName = ref("");
 
 const emit = defineEmits<{
   (e: "submit", name: string): void;
 }>();
 
 const onSubmit = () => {
-  if (!name.value.trim()) return;
-  emit("submit", name.value);
+  if (!userName.value.trim()) return;
+  emit("submit", userName.value);
 };
 </script>

@@ -15,7 +15,7 @@
         class="text-gray-600 flex items-center gap-2"
       >
         Room:
-        <span class="font-mono text-blue-600">{{ route.params.roomId }}</span>
+        <span class="font-semibold text-blue-600">{{ readableRoomName }}</span>
         <button
           class="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors cursor-pointer flex items-center justify-center"
           title="Share room url with your team"
@@ -56,16 +56,29 @@
 
 <script setup lang="ts">
 import AppIcon from "~/components/AppIcon.vue";
+import { useSessionStorage } from "~/composables/useSessionStorage";
 
 const route = useRoute();
+const { getItem } = useSessionStorage();
 
 const isShared = ref(false);
 
+const readableRoomName = computed(() => {
+  if (route.params.roomId) {
+    const roomId = String(route.params.roomId);
+    const storedName = getItem(`roomName:${roomId}`);
+    return storedName || `Room ${roomId.slice(0, 8)}...`;
+  }
+  return "";
+});
+
 const copyRoomUrl = async () => {
-  await navigator.clipboard.writeText(window.location.href);
-  isShared.value = true;
-  setTimeout(() => {
-    isShared.value = false;
-  }, 1500);
+  if (process.client) {
+    await navigator.clipboard.writeText(window.location.href);
+    isShared.value = true;
+    setTimeout(() => {
+      isShared.value = false;
+    }, 1500);
+  }
 };
 </script>

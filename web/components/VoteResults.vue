@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center text-neutral-500">
+  <div v-if="stats" class="text-center text-neutral-500">
     <p class="tracking-widest text-lg pt-3">Votes Summary</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end justify-center">
@@ -42,14 +42,9 @@
 </template>
 
 <script setup lang="ts">
-type VoteStats = {
-  min?: { value: string; count: number };
-  max?: { value: string; count: number };
-  mostFrequent: { value: string; times: number };
-  questionVote?: { value: string; count: number };
-};
+import type { VoteStats } from "~/stores/voting";
 
 defineProps<{
-  stats: VoteStats;
+  stats: VoteStats | null;
 }>();
 </script>
