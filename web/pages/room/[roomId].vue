@@ -57,7 +57,6 @@ import { useSessionStore } from "~/stores/useSessionStore";
 import { useUserStore } from "~/stores/useUserStore";
 import { useVotingStore } from "~/stores/voting";
 import { useWebSocketStore } from "~/stores/useWebSocketStore";
-import { useSession } from "~/composables/useSession";
 
 const options = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, "?"];
 

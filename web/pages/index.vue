@@ -27,7 +27,7 @@ import { useSession } from "~/composables/useSession";
 const { saveSession } = useSession();
 
 const createRoom = (): void => {
-  const { roomId } = getRoomId();
+  const { roomId, roomName } = getRoomId();
 
   const userId = crypto.randomUUID();
   const adminId = crypto.randomUUID();
