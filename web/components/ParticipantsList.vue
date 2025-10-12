@@ -44,7 +44,7 @@
               </span>
               <button
                 v-else-if="isCurrentUserAdmin"
-                class="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                class="text-xs cursor-pointer text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
                 @click="makeAdmin(userId)"
               >
                 Make Admin
