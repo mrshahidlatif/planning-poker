@@ -43,8 +43,7 @@ io.on("connection", (socket) => {
       room.users[userId].vote = vote;
       room.users[userId].socketId = socket.id;
 
-      console.log(`User ${userId} voted ${vote} in room ${roomId}`, room);
-      console.log('admin user id', room.adminUserId);
+      console.log(`User ${userId} voted ${vote} in room ${roomId}`);
       io.to(roomId).emit("room-state", {
         users: room.users,
         adminUserId: room.adminUserId,

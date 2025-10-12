@@ -38,7 +38,7 @@ export const useUserStore = defineStore("user", () => {
     isAdmin.value = data.adminUserId === userId.value;
 
     // Show notification if admin status changed
-    if (wasAdmin !== isAdmin.value) {
+    if (wasAdmin && wasAdmin !== isAdmin.value) {
       if (isAdmin.value) {
         notification.value = "You are now the admin!";
       } else {
